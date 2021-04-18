@@ -1,157 +1,49 @@
-import parameter from 'parameter';
-import {
-	includes as _includes,
-	forEach as _forEach,
-	map as _map,
-} from 'lodash';
 import moment from 'moment';
-// import {
-// 	Op,
-// } from 'sequelize';
 const dateNow = () => {
 	return moment().format("YYYY-MM-DD HH:mm:ss")
 }
 
-// function paging(filters) {
-// 	let options = {};
-// 	if (filters.perPage && !isNaN(filters.perPage)) {
-// 		options.limit = filters.perPage > 100 ? 100 : filters.perPage * 1;
-// 		if (filters.full == "true") {
-// 			options.limit = filters.perPage * 1;
-// 		}
-// 	} else {
-// 		options.limit = 20; //default 20 items perPage
-// 	}
-// 	if (filters.page > 0) {
-// 		options.offset = (filters.page - 1) * options.limit;
-// 	} else {
-// 		options.offset = 0;
-// 	}
-// 	return options;
-// }
-
-const keysCheckPager = {
-	page: {
-		type: 'int',
-		required: false
-	},
-	perPage: {
-		type: 'int',
-		required: false
+function renderErr(where, res, status, field, type, check_type) {
+	res.status(status);
+	if (status == 401) {
+		res.send([{
+			type: where,
+			message: "Authorization",
+			code: "Authorization",
+			field: field
+		}])
 	}
-};
-
-function checkPager(req, res, next) {
-	let errors = parameter.validate(keysCheckPager, req.body);
-	if (errors) {
-		return renderErr("");
-	}
-}
-
-function filterFromToCreated(created_from, created_to, where) {
-
-	if (created_from) {
-		let dateFrom = new Date(created_from + ' 00:00:00');
-		if (dateFrom != 'Invalid Date') {
-			where.created_at = {
-				[Op.gte]: dateFrom
-			};
-		}
-	}
-	if (created_to) {
-		let dateTo = new Date(created_to + ' 23:59:59');
-		if (dateTo != 'Invalid Date') {
-			where.created_at = {
-				[Op.lte]: dateTo
-			};
-		}
-	}
-	if (created_from && created_to) {
-		let dateFrom = new Date(created_from + ' 00:00:00');
-		let dateTo = new Date(created_to + ' 23:59:59');
-		if (dateFrom != 'Invalid Date' && dateTo != 'Invalid Date') {
-			where.created_at = {
-				[Op.between]: [dateFrom, dateTo]
-			}
-		}
-	}
-	return where;
-}
-/**
- * 
- * @param {Xlsx.SHEET} sheet  from xlsx-populate lib
- * @param {Object} header Column->Text 
- * @param {Integer} row To write the header
- */
-async function renderExcelHeader(sheet, header, row, color) {
-	let fill = "d6d3d3";
-	if (color) {
-		fill = color
-	}
-	let css = {
-		bold: true,
-		border: true,
-		fill: fill
-	};
-	for (let key of Object.keys(header)) {
-		sheet.cell(`${key + row}`).value(header[key]).style(css);
-	}
-}
-
-function renameFillter(objectName, name, rename, listValues) {
-	_forEach(listValues, (val, index) => {
-		if (index + 1 == objectName[name]) {
-			objectName[rename] = val;
-			delete objectName[name];
-			return;
-		}
-	})
-}
-
-function renameListFillter(objectName, objectRename) {
-	_forEach(objectName, (val1, key1) => {
-		_forEach(objectRename, (val2, key2) => {
-			if (key1 == key2) {
-				objectName[val2] = val1;
-				delete objectName[key1];
-			}
-		})
-	})
-}
-
-function renderErr(where, ctx, status, field, type, check_type) {
-	ctx.status = status;
 	if (status == 404) {
-		ctx.body = [{
+		res.send([{
 			type: where,
 			message: "Not Found",
 			code: "Not Found",
 			field: field
-		}]
+		}])
 	}
 	if (status == 409) {
-		ctx.body = [{
+		res.send([{
 			type: where,
 			message: "Duplicated",
 			code: "Conflict",
 			field: field,
 			data: type
-		}]
+		}])
 	}
 	if (status == 403) {
-		ctx.body = [{
+		res.send([{
 			type: where,
 			message: field || "Permission",
 			code: "Permission",
-		}]
+		}])
 	}
 	if (status == 500) {
-		ctx.body = [{
+		res.send([{
 			type: where,
 			message: "Internal Server Error",
 			code: "Internal",
 			field: field
-		}]
+		}])
 	}
 	if (status == 400) {
 		let code = "invalid";
@@ -162,15 +54,14 @@ function renderErr(where, ctx, status, field, type, check_type) {
 			message = "required";
 			field = field_sent
 		}
-		ctx.body = [{
+		res.send([{
 			type: where,
 			message: message,
 			code: code || '',
 			field: field_sent,
-		}]
+		}])
 	}
-
-	return ctx;
+	return res;
 };
 
 function renderlogInfo(action, table_user, user, column, old_data, new_data, type, reason_type, reason) {
@@ -204,11 +95,5 @@ function renderlogInfo(action, table_user, user, column, old_data, new_data, typ
 
 export {
 	renderErr,
-	// paging,
-	checkPager,
-	renderExcelHeader,
-	renameFillter,
-	renameListFillter,
-	filterFromToCreated,
 	renderlogInfo,
-}
+};

@@ -6,4 +6,4 @@ const writeFileAsync = Promise.promisify(fs.writeFile);
 const unlinkAsync = Promise.promisify(fs.unlink);
 const fstat = Promise.promisify(fs.stat);
 
-export {readFileAsync, writeFileAsync, unlinkAsync, fstat}
+export { readFileAsync, writeFileAsync, unlinkAsync, fstat }

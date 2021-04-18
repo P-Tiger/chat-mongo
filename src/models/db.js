@@ -1,11 +1,19 @@
 import mongoose from 'mongoose';
-import {
-    cfg
-} from '../config';
+import { cfg } from '../config';
 import {
     getLogger
 } from '../services/logger';
 const logger = getLogger('database');
-const DB = mongoose.connect('mongodb://localhost/chat', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(cfg("DB_LINK", String), { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
+
+const DB = mongoose.connection;
+DB.on('error', () => {
+    console.log(`(MongoDB) Unable to connect to the database: \n%o`, err)
+    logger.error(`(MongoDB) Unable to connect to the database: \n%o`, err);
+});
+DB.once('open', function () {
+    console.log(`Connection (MongoDB) has been established successfully`)
+    logger.info(`Connection (MongoDB) has been established successfully.`);
+});
 
 export default DB;
