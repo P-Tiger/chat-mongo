@@ -1,4 +1,12 @@
 node_modules
 .env
 *.log
-./src/uploads
+*.jpeg
+*.mp4
+*.avi
+*.mov
+*.flv
+*.wmv
+*.jpg
+*.jpeg
+*.png
