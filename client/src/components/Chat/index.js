@@ -14,7 +14,7 @@ export const ChatComponent = ({ chatReducer }) => {
     const dispatch = useDispatch()
     const [message, setMessage] = useState('');
     useEffect(() => {
-        let server = "http://localhost:9999";
+        let server = process.env.REACT_APP_SOCKET;
         socket = io.connect(server)
         socket.on('Output Chat Message', data => {
             let objMessage = $('.messages');
