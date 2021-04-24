@@ -7,7 +7,7 @@ const logger = getLogger('database');
 mongoose.connect(cfg("DB_LINK", String), { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
 
 const DB = mongoose.connection;
-DB.on('error', () => {
+DB.on('error', (err) => {
     console.log(`(MongoDB) Unable to connect to the database: \n%o`, err)
     logger.error(`(MongoDB) Unable to connect to the database: \n%o`, err);
 });
